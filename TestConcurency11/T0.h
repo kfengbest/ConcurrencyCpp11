@@ -12,21 +12,19 @@
 #include <iostream>
 
 namespace T0 {
-    
     void run();
-    
 }
 
 namespace T01 {
-    
     void run();
-    
 }
 
 namespace T02 {
-    
     void run();
-    
+}
+
+namespace T03 {
+    void run();
 }
 
 #endif /* defined(__TestConcurency11__T0__) */

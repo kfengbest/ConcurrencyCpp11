@@ -134,3 +134,50 @@ namespace T02 {
  print in thread: 7
  T0::run() end.
 */
+
+
+namespace T03 {
+    
+    std::mutex mtx;
+    std::condition_variable cv;
+    bool gReady = false;
+    
+    void print(int id)
+    {
+        std::unique_lock<std::mutex> lk(mtx);
+        while (!gReady) {
+            std::cout << id << " is waiting. \n";
+            cv.wait(lk);
+        }
+        std::cout << "print in thread: " << id << std::endl;
+    }
+    
+    void releaseAll()
+    {
+        std::unique_lock<std::mutex> lk(mtx);
+        gReady = true;
+        std::cout << "before wake up all \n";
+        cv.notify_all();
+        std::cout << "after wake up all \n";
+    }
+    
+    void run()
+    {
+        std::cout << "T0::run() \n";
+        
+        std::thread threads[10];
+        for (int i = 0; i < 10; i++) {
+            threads[i] = std::thread(print, i);
+        }
+        
+        std::cout << "10 threads are ready for race condition \n";
+        
+        releaseAll();
+        
+        for (auto & th:threads) {
+            th.join();
+        }
+        
+        std::cout << "T0::run() end. \n";
+    }
+}
