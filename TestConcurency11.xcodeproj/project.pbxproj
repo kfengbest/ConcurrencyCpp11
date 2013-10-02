@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		123D408717FA36DF00D4AC13 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 123D408617FA36DF00D4AC13 /* main.cpp */; };
 		123D408917FA36DF00D4AC13 /* TestConcurency11.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 123D408817FA36DF00D4AC13 /* TestConcurency11.1 */; };
+		12BF322F17FBD2FD0096C05E /* T0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12BF322D17FBD2FD0096C05E /* T0.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,8 @@
 		123D408317FA36DF00D4AC13 /* TestConcurency11 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestConcurency11; sourceTree = BUILT_PRODUCTS_DIR; };
 		123D408617FA36DF00D4AC13 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		123D408817FA36DF00D4AC13 /* TestConcurency11.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = TestConcurency11.1; sourceTree = "<group>"; };
+		12BF322D17FBD2FD0096C05E /* T0.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = T0.cpp; sourceTree = "<group>"; };
+		12BF322E17FBD2FD0096C05E /* T0.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +65,8 @@
 			children = (
 				123D408617FA36DF00D4AC13 /* main.cpp */,
 				123D408817FA36DF00D4AC13 /* TestConcurency11.1 */,
+				12BF322D17FBD2FD0096C05E /* T0.cpp */,
+				12BF322E17FBD2FD0096C05E /* T0.h */,
 			);
 			path = TestConcurency11;
 			sourceTree = "<group>";
@@ -118,6 +123,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				123D408717FA36DF00D4AC13 /* main.cpp in Sources */,
+				12BF322F17FBD2FD0096C05E /* T0.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,6 +220,7 @@
 				123D408E17FA36DF00D4AC13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
