@@ -15,7 +15,8 @@ int main(int argc, const char * argv[])
     // insert code here...
     std::cout << "Hello, World!\n";
     
-    T0::run();
+    //T0::run();
+    T01::run();
     
     return 0;
 }

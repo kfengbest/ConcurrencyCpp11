@@ -17,4 +17,10 @@ namespace T0 {
     
 }
 
+namespace T01 {
+    
+    void run();
+    
+}
+
 #endif /* defined(__TestConcurency11__T0__) */
