@@ -57,6 +57,7 @@ namespace T01 {
         for (int i = 0; i < 10; i++) {
             threads[i] = std::thread(print, i);
         }
+        
         std::cout << "10 threads are ready for race condition \n";
         
         for (auto & th:threads) {
@@ -84,3 +85,52 @@ namespace T01 {
  T0::run() end.
 
  */
+
+
+// Main and sub threads are all mutex.
+namespace T02 {
+    
+    std::mutex mtx;
+    
+    void print(int id)
+    {
+        std::lock_guard<std::mutex> lk(mtx);
+        std::cout << "print in thread: " << id << std::endl;
+    }
+    
+    void run()
+    {
+        std::cout << "T0::run() \n";
+        
+        std::thread threads[10];
+        for (int i = 0; i < 10; i++) {
+            threads[i] = std::thread(print, i);
+        }
+        
+        mtx.lock();
+        std::cout << "10 threads are ready for race condition \n";
+        mtx.unlock();
+        
+        for (auto & th:threads) {
+            th.join();
+        }
+        
+        std::cout << "T0::run() end. \n";
+    }
+}
+/*
+ Hello, World!
+ T0::run()
+ print in thread: 0
+ print in thread: 1
+ print in thread: 2
+ print in thread: 4
+ print in thread: 3
+ print in thread: 5
+ print in thread: 6
+ print in thread: 8
+ 10 threads are ready for race condition
+ print in thread: 9
+ print in thread: 7
+ T0::run() end.
+*/
