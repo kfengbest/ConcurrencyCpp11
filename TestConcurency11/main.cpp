@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "T0.h"
+#include "T1.h"
 
 int main(int argc, const char * argv[])
 {
@@ -18,8 +19,10 @@ int main(int argc, const char * argv[])
     //T0::run();
     //T01::run();
     //T02::run();
-    T03::run();
-
+    //T03::run();
+    
+    T10::run();
+    
     return 0;
 }
 
