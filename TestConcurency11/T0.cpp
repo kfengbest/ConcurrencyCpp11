@@ -18,6 +18,7 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
+#include <vector>
 
 
 // The printed result is difference every time.
@@ -656,11 +657,106 @@ namespace T09 {
 
 namespace T0A {
     
+
+    
+    void test_for_each()
+    {
+        // init vector.
+        int data[] = {1,2,3,4,5,6};
+        std::vector<int> vec(data, data + sizeof(data)/sizeof(int));
+        
+        std::cout << "std::for_each: \n";
+        std::for_each(vec.begin(),vec.end(), [](int e){
+            std::cout << e << " ";
+        });
+        
+        std::cout << std::endl << "for(:) \n" ;
+        for (auto it : vec) { std::cout << it << " ";}
+        
+        std::cout << std::endl << "for(:) \n" ;
+        for (int it : vec) { std::cout << it << " ";}
+        
+        std::cout << std::endl << "for(:) \n" ;
+        for (int it : data) { std::cout << it << " "; }
+        
+        for (auto e : vec){ std::cout << e << " ";}
+        for (auto& e : vec){ std::cout << e++ << " ";}
+        for (const auto& e : vec){ std::cout << e << " ";}
+
+        
+    }
+    
+    void test_copy()
+    {
+        int data[] = {1,2,3,4,5};
+        std::vector<int> vec1;
+        int size = sizeof(data) / sizeof(int);
+        vec1.resize(size); // must!
+        std::copy(data, data + size, vec1.begin());
+        std::for_each(vec1.begin(), vec1.end(), [](int e){
+            std::cout << e << " ";
+        });
+    }
+    
+    void test_sort()
+    {
+        // init
+        int data[] = {4,2,5,1,3};
+        std::vector<int> vec(data, data + sizeof(data)/sizeof(int));
+        
+        // sort low -> high
+        std::sort(vec.begin(), vec.end());
+        for (auto e : vec){ std::cout << e << " ";}
+        std::cout << "\n";
+        
+        // sort high -> low
+        std::sort(vec.begin(), vec.end(), [](int i, int j){ return i > j;});
+        for (auto& e : vec){ std::cout << e++ << " "; }
+        std::cout << "\n";
+
+        // sort partially
+        std::sort(vec.begin(), vec.begin() + 3);
+        for (const auto& e : vec){ std::cout << e << " "; }
+        std::cout << "\n";
+
+    }
+
+    void test_find()
+    {
+        // init
+        int data[] = {4,2,5,1,3,6,3,7};
+        std::vector<int> vec(data, data + sizeof(data)/sizeof(int));
+
+        for (const auto& e : vec){ std::cout << e << " ";}
+        std::cout << std::endl;
+        
+        auto it = std::find(vec.begin(), vec.end(), 5);
+        std::cout << "find(5): " << *it << std::endl;
+        
+        auto it2 = std::find(vec.begin(), vec.end(), 1000);
+        std::cout << "find(1000): " << *it2 << "  " << (it2 != vec.end()) << std::endl;
+
+        auto it3 = std::find_if(vec.begin(), vec.end(), [](const int& e){ return e % 2 == 0;});
+        std::cout << "find_if(e%2==0): " << *it3 << "  " << (it3 != vec.end()) << std::endl;
+
+        bool b1 = std::any_of(vec.begin(), vec.end(), [](const int& e){return e % 3 == 0; });
+        std::cout << "any_of(e%3==0): " << b1 << std::endl;
+
+        auto c3 = std::count(vec.begin(), vec.end(), 3);
+        std::cout << "count(3): " << c3 << std::endl;
+        
+        auto oddn = std::count_if(vec.begin(), vec.end(), [](int e){ return e%2==0;});
+        std::cout << "count_if(e%2): " << oddn << std::endl;
+
+
+    }
+    
     void run()
     {
-        std::plus<int> p1;
-        std::cout << "plus(1,1) = " << p1(1,1) << std::endl;
-        
+        //test_copy();
+        //test_for_each();
+        //test_sort();
+        test_find();
         
     }
 }

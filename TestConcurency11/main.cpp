@@ -30,10 +30,10 @@ int main(int argc, const char * argv[])
     //T06::run();
     //T07::run();
     
-    T08::run();
+    //T08::run();
     //T09::run();
     
-    //T0A::run();
+    T0A::run();
     
     return 0;
 }
