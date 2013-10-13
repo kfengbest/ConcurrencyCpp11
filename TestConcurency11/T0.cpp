@@ -17,6 +17,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <algorithm>
 
 
 // The printed result is difference every time.
@@ -385,7 +386,7 @@ namespace T07 {
 
 namespace T08 {
     
-    int heartbeat()
+    bool heartbeat()
     {
         int res = 0;
         for (int i = 0; i < 50000; i++) {
@@ -398,17 +399,18 @@ namespace T08 {
             }
         }
         
-        return res;
+        return true;
     }
     
-    int countdown (int from, int to) {
+    int countdown(int from, int to) {
         for (int i=from; i!=to; --i) {
             std::cout << i << '\n';
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        std::cout << "Lift off!\n";
-        return from-to;
+        std::cout << "Finished!\n";
+        return from - to;
     }
+    
     
     void task_lambda()
     {
@@ -417,41 +419,108 @@ namespace T08 {
             return a + b;
         });
         
-        task(2,9); // run in main thread?
-
-        //std::thread t(std::move(task), 3,5); // not work.
+        //task(2,9); // run in main thread?
         
-        std::future<int> fut = task.get_future();
+        //std::packaged_task<int(int,int)> taskObj = std::move(task);
+        auto taskObj = std::move(task);
+        std::future<int> fut = taskObj.get_future();     // must be called before thread started!
+        std::thread t(std::move(taskObj), 3,5); 
+        
         std::cout << "task lambda: before res.get() \n";
         int r = fut.get();
         std::cout << "task lambda: " << r << std::endl;
         
+        t.join();
     }
     
     void task_thread()
     {
-//        std::packaged_task<int()> task(heartbeat);
-//        std::thread t(std::move(task));
-//        std::future<int> fut = task.get_future();
-//        std::cout << "task_thread: before res.get() \n";
-//        int r = fut.get();
-//        std::cout << "task_thread: " << r << std::endl;
-//        t.join();
+        std::packaged_task<int(int,int)> task(&countdown);  // 设置 packaged_task
+        std::future<int> ret = task.get_future();           // 获得与 packaged_task 共享状态相关联的 future 对象.
+        std::thread th(std::move(task), 9, 1);              // 创建一个线程完成计算任务.
+        
+        std::cout << "task_thread before fut.get() " << std::endl;
+        int r = ret.get();                                  // 等待任务完成并获取结果
+        std::cout << "task_thread after fut.get() " << r << std::endl;
+        th.join();
+        
     }
     
     void task_thread2()
     {
-//        std::packaged_task<int(int,int)> task(countdown);
-//        std::future<int> fut = task.get_future();
-//        std::thread th(std::move(task), 9,1);
+        std::packaged_task<bool()> task(&heartbeat);
+        std::cout << "before get_future:  task.valid() " << task.valid() << std::endl;
+        std::future<bool> ret = task.get_future();
+        std::cout << "after get_future:  task.valid() " << task.valid() << "future::valid() " << ret.valid() << std::endl;
+
+        std::thread th(std::move(task));
+        bool r = ret.get();                                  // 等待任务完成并获取结果
+        std::cout << "task_thread2 after fut.get() " << r << std::endl;
         
+        th.join();
     }
+    
+    int triple(int v)
+    {
+        heartbeat();
+        return 3*v;
+    }
+    
+    void task_thread3()
+    {
+        std::cout << "task_thread3 begin \n";
+        
+        std::packaged_task<int(int)> task(&triple);
+        std::future<int> fut = task.get_future();
+        std::thread(std::move(task), 100).detach();
+        std::cout << "task 100 " << fut.get() << std::endl;
+        
+        task.reset(); // throw exception on xcode. not sure why.
+        fut = task.get_future();
+        std::thread(std::move(task), 200).detach();
+        std::cout << "task 200 " << fut.get() << std::endl;
+
+    }
+    
+    void task_function()
+    {
+        std::function<bool()> func(&heartbeat);
+        std::packaged_task<bool()> task(func);
+        std::future<bool> ret = task.get_future();
+        std::thread(std::move(task)).detach();
+        std::cout << "finished " << ret.get() << std::endl;
+    }
+    
+    class Command
+    {
+    public:
+        void execute()
+        {
+            std::packaged_task<bool(int)> task(std::bind(&Command::doTask, this, std::placeholders::_1));
+            std::future<bool> fut = task.get_future();
+            std::thread(std::move(task), 10).detach();
+            std::cout << "execute finished " << fut.get() << std::endl;
+        }
+        
+        bool doTask(int v)
+        {
+            heartbeat();
+            return true;
+        }
+    };
     
     void run()
     {
-        task_lambda();
-        task_thread();
-        task_thread2();
+      //  task_lambda();
+      //  task_thread();
+      //  task_thread2();
+      ////  task_thread3();
+      //  task_function();
+        
+        Command cmd;
+        cmd.execute();
+        std::cout << "after execute() " << std::endl;
+
     }
 }
 
@@ -490,8 +559,6 @@ namespace T09 {
         {
             return a + b;
         }
-        
-
         
         void switchTo(const std::function<void(int,int)>& func)
         {
@@ -585,4 +652,15 @@ namespace T09 {
         
     }
     
+}
+
+namespace T0A {
+    
+    void run()
+    {
+        std::plus<int> p1;
+        std::cout << "plus(1,1) = " << p1(1,1) << std::endl;
+        
+        
+    }
 }
