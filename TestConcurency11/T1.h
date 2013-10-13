@@ -15,4 +15,16 @@ namespace T10 {
     void run();
 }
 
+namespace T11 {
+    void run();
+}
+
+namespace T12 {
+    void run();
+}
+
+namespace T13 {
+    void run();
+}
+
 #endif /* defined(__TestConcurency11__T1__) */

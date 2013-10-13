@@ -27,4 +27,29 @@ namespace T03 {
     void run();
 }
 
+namespace T04 {
+    void run();
+}
+
+namespace T05 {
+    void run();
+}
+
+namespace T06 {
+    void run();
+}
+
+namespace T07 {
+    void run();
+}
+
+namespace T08 {
+    void run();
+}
+
+namespace T09 {
+    void run();
+}
+
+
 #endif /* defined(__TestConcurency11__T0__) */
