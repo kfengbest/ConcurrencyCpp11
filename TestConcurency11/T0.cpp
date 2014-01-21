@@ -19,6 +19,9 @@
 #include <functional>
 #include <algorithm>
 #include <vector>
+#include <numeric>
+#include <ostream>
+#include <stack>
 
 
 // The printed result is difference every time.
@@ -658,6 +661,15 @@ namespace T09 {
 namespace T0A {
     
 
+    class Command
+    {
+    public:
+        Command(){std::cout << "ctor() \n";}
+        virtual ~Command(){std::cout << "~Command() \n";}
+        
+    public:
+        void execute(){ std::cout << "Command::execute() \n";}
+    };
     
     void test_for_each()
     {
@@ -683,6 +695,19 @@ namespace T0A {
         for (auto& e : vec){ std::cout << e++ << " ";}
         for (const auto& e : vec){ std::cout << e << " ";}
 
+        // init
+        std::vector<Command*> cmdVec;
+        for (int i = 0; i < 10; i++) {
+            Command* cmd = new Command();
+            cmdVec.push_back(cmd);
+        }
+        
+        // mem_fn
+        std::for_each(cmdVec.begin(), cmdVec.end(), std::mem_fn(&Command::execute));
+        
+        // clear
+        std::for_each(cmdVec.begin(), cmdVec.end(), [&](Command* cmd){ delete cmd; cmd = nullptr;});
+        cmdVec.clear();
         
     }
     
@@ -750,13 +775,458 @@ namespace T0A {
 
 
     }
+
+    std::ostream& operator<<(std::ostream& ostr, const std::list<int>& ls)
+    {
+        for (auto& e : ls){
+            ostr << " " << e;
+        }
+    
+        return ostr;
+    }
+
+    void test_splice()
+    {
+        std::list<int> ls1 = {1,2,3,4,5,6,7,8,9};
+        std::list<int> ls2 = {20,21,22,23,24,25,26};
+        std::list<int> ls;
+        
+        auto it = ls1.begin();
+        std::advance(it, 2);
+        ls1.splice(it, ls2);
+        ls.splice(ls.begin(), ls1);
+        
+        std::cout << "ls1 " << ls1 << std::endl;
+        std::cout << "ls2 " << ls2 << std::endl;
+        
+        auto ite = ls1.end();
+        
+        ls2.splice(ls2.begin(), ls1, it, ls1.end());
+        
+        std::cout << "ls1 " << ls1 << std::endl;
+        std::cout << "ls2 " << ls2 << std::endl;
+        
+    }
+    
+
+    
+    
+    void test_partition()
+    {
+        std::list<int> ls1 = {1,2,3,4,5,6,7,8,9};
+        auto it11 = ls1.begin();
+        auto it12 = std::next(it11, 3);
+        std::advance(it11, 3);
+        
+        
+        auto it1 = std::partition(ls1.begin(), ls1.end(), [](int e){ return e % 2 == 0;});
+        std::cout << "ls1 " << ls1 << std::endl;
+
+        auto it2 = std::partition(ls1.begin(), ls1.end(), [](int e){ return e > 4;});
+        std::cout << "ls1 " << ls1 << std::endl;
+       // std::cout << "pivot" << *it2;
+    }
+    
+    template<typename T>
+    std::list<T> parallel_quicksort1(std::list<T> input)
+    {
+        if (input.empty()) {
+            return input;
+        }
+        
+        // choose the pivot
+        std::list<T> result;
+        result.splice(result.begin(), input, input.begin());
+        const T& pivot_value = *result.begin();
+        
+        // divide to 2 parts
+        typename std::list<T>::iterator pivot_it = std::partition(input.begin(), input.end(), [&](const T& t){return t < pivot_value;});
+        
+        // dump
+        std::cout << "round: " << input << std::endl;
+        
+        // get the lower parts
+        std::list<T> lower_part;
+        lower_part.splice(lower_part.begin(), input, input.begin(), pivot_it);
+        
+        // recursively sort the lower and higher part.
+        std::list<T> lower = parallel_quicksort1(lower_part);
+        std::list<T> higher = parallel_quicksort1(input);
+        
+        // compose the result.
+        result.splice(result.begin(), lower);
+        result.splice(result.end(), higher);
+        
+        return result;
+    }
+    
+    template<typename F, typename A>
+    std::future< typename std::result_of<F(A&&)>::type> spawn_task(F&& func, A&& arg)
+    {
+        typedef typename std::result_of<F(A&&)>::type result_type;
+        std::packaged_task<result_type(A&&)> task(std::move(func));
+        std::future<result_type> fut = task.get_future();
+        std::thread(std::move(task), std::move(arg)).detach();
+        
+        return fut;
+    }
+    
+    std::mutex g_mtx;
+    
+    template<typename T>
+    std::list<T> parallel_quicksort2(std::list<T> input)
+    {
+        if (input.empty()) {
+            return input;
+        }
+        
+        std::list<T> result;
+
+        // choose pivot
+        result.splice(result.begin(), input, input.begin());
+        const T& pivot_value = *result.begin();
+        
+        // divid to two parts
+        typename std::list<T>::iterator pivot_it = std::partition(input.begin(), input.end(), [&](const T& t){ return t < pivot_value;});
+        
+        g_mtx.lock();
+        std::cout << "round:" << std::this_thread::get_id() << " " << input << std::endl;
+        g_mtx.unlock();
+        
+        // sort lower
+        std::list<T> lower_parts;
+        lower_parts.splice(lower_parts.begin(), input, input.begin(), pivot_it);
+        std::future<std::list<T> > lower = spawn_task(&parallel_quicksort2<T>, std::move(lower_parts)); // using a new thread
+        
+        // sort higher
+        std::list<T> higher = parallel_quicksort2<T>(input); // using current thread
+        
+        // combine result
+        result.splice(result.end(), higher);
+        result.splice(result.begin(), lower.get());
+        
+        return result;
+    }
+    
+    template<typename T>
+    struct ThreadSafeStack{
+    public:
+        ThreadSafeStack(){}
+        virtual ~ThreadSafeStack(){}
+        
+        ThreadSafeStack(const ThreadSafeStack& rhs)
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            mData = rhs.mData;
+        }
+        
+        ThreadSafeStack& operator=(const ThreadSafeStack&) = delete;
+        
+        void push(T t)
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            mData.push(t);
+        }
+        
+        void pop(T& t)
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            t = mData.top();
+            mData.pop();
+        }
+        
+        std::shared_ptr<T> pop()
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            if (mData.empty()) {
+                return nullptr;
+            }
+            
+            std::shared_ptr<T> res(new T(mData.top()));
+            mData.pop();
+            return res;
+        }
+        
+        bool empty()
+        {
+            std::lock_guard<std::mutex> lk(mMutex);
+            return mData.empty();
+        }
+        
+    public:
+        std::stack<T> mData;
+        mutable std::mutex mMutex;
+    };
+    
+    template<typename T>
+    struct ParallelQuickSorter
+    {
+    public:
+        
+        struct ChunkToSort{
+            std::list<T> data;
+            std::promise<std::list<T> > promise;
+            bool mDone;
+            
+            ChunkToSort(bool done = false) : mDone(done){}
+            ChunkToSort(const ChunkToSort& rhs)
+            : mDone(rhs.mDone), data(std::move(rhs.data))
+            {
+            }
+        };
+        
+        ParallelQuickSorter()
+        : mMaxThreads(std::thread::hardware_concurrency())
+        {
+            for (int i = 0; i < mMaxThreads - 1; i++) {
+                mThreads.push_back(std::thread(&ParallelQuickSorter<T>::sort_thread, this));
+            }
+        }
+        
+        virtual ~ParallelQuickSorter()
+        {
+            for(unsigned i=0;i<mMaxThreads;++i)
+            {
+                mChunks.push(new ChunkToSort(true));
+            }
+            
+            for (auto& e : mThreads){
+                e.join();
+            }
+        }
+        
+        std::list<T> do_sort(std::list<T> input)
+        {
+            if (input.empty()) {
+                return input;
+            }
+            
+            std::list<T> result;
+
+            // choose pivot
+            result.splice(result.begin(), input, input.begin());
+            const T& pivot_value = *result.begin();
+            
+            // divide
+            typename std::list<T>::iterator pivot_it = std::partition(input.begin(), input.end(), [&](const T& t){ return t < pivot_value;});
+            
+            // prepare and push data to stack
+            ChunkToSort* newChunk = new ChunkToSort();
+            newChunk->data.splice(newChunk->data.begin(), input, input.begin(), pivot_it);
+            std::future<std::list<T> > lower_fut = newChunk->promise.get_future();
+            mChunks.push(newChunk);
+            
+            // sort higher, in current thread
+            std::list<T> higher = do_sort(input);
+            result.splice(result.end(), higher);
+            
+            // sort lower, from thread pool.
+            std::list<T> lower = lower_fut.get();
+            result.splice(result.begin(), lower);
+            
+            return result;
+        }
+        
+        void sort_thread()
+        {
+            while (try_sort_chunk()) {
+                std::this_thread::yield();
+            }
+        }
+        
+        bool try_sort_chunk()
+        {
+            std::shared_ptr<ChunkToSort*> chunk = mChunks.pop();
+            if (chunk) {
+                std::list<T> result = do_sort((*chunk)->data);
+                (*chunk)->promise.set_value(result);
+            }
+            return true;
+        }
+        
+    private:
+        int mMaxThreads;
+        ThreadSafeStack<ChunkToSort*> mChunks;
+        std::vector<std::thread> mThreads;
+    };
+    
+    template<typename T>
+    std::list<T> parallel_quicksort3(std::list<T> input)
+    {
+        ParallelQuickSorter<T> s;
+        return s.do_sort(input);
+    }
+    
+    
+    #define random(x) (rand()%x)
+    
+    void test_parallel_quicksort()
+    {
+        //std::list<int> input = { 4,5,3,9,7,5,6,1,2,8 };
+        std::list<int> input;
+        for (int i = 0; i < 100; i++) {
+            input.push_back(random(100));
+        }
+
+        std::list<int> output = parallel_quicksort3<int>(input);
+        
+        std::cout << "output: " << output;
+    }
     
     void run()
     {
         //test_copy();
         //test_for_each();
         //test_sort();
-        test_find();
+        //test_find();
+        //test_splice();
+        //test_partition();
+        test_parallel_quicksort();
+    }
+}
+
+class JointThreads
+{
+public:
+    explicit JointThreads(std::vector<std::thread>& threads)
+    : mThreads(threads)
+    {
+    }
+    
+    ~JointThreads()
+    {
+        for (unsigned long i = 0; i < mThreads.size(); i++) {
+            if (mThreads[i].joinable()) {
+                mThreads[i].join();
+            }
+        }
+    }
+    
+private:
+    std::vector<std::thread>& mThreads;
+    
+};
+
+/*
+ min, distance,advance, move
+*/
+namespace T0B {
+    template<typename Iterator, typename Func>
+    void parallel_for_each(Iterator first, Iterator last, Func f)
+    {
+        const unsigned long length = std::distance(first, last);
+        if (length == 0) {
+            return;
+        }
+        
+        const unsigned long min_per_thread = 25;
+        const unsigned long max_threads = (length +  min_per_thread - 1) / min_per_thread;
+        const unsigned long hardware_threads = std::thread::hardware_concurrency();
+        const unsigned long num_threads = std::min(hardware_threads != 0 ? hardware_threads : 2, max_threads);
+        const unsigned long block_size = length / num_threads;
+        
+        std::vector<std::thread> threads(num_threads - 1);
+        JointThreads joiner(threads);
+        
+        Iterator block_first = first;
+        for (unsigned long i = 0; i < num_threads - 1; i++) {
+            Iterator block_end = block_first;
+            std::advance(block_end, block_size);
+            
+            // Using task
+            std::packaged_task<void()> task([=](){
+                std::for_each(block_first, block_end, f);
+            });
+            //threads[i] = std::thread(std::move(task));
+            
+            // Using thread directly.
+            threads[i] = std::thread([=](){
+                std::for_each(block_first, block_end, f);
+            });
+            
+            block_first = block_end;
+        }
+        
+        std::for_each(block_first,last,f);
         
     }
+    
+    void run()
+    {
+        std::vector<int> data;
+        for (int i = 1; i <= 1000; i++) {
+            data.push_back(i);
+        }
+        
+        parallel_for_each(data.begin(), data.end(), [](int& e){
+            e += 2;
+            
+            int res = 0;
+            for (int i = 0; i < 50000; i++) {
+                for (int j = 0; j < 20000; j++) {
+                    res = i - j;
+                }
+                
+                
+                if ( i % 10000 == 0) {
+                    std::cout << std::this_thread::get_id() << std::endl;
+                }
+            }
+        });
+
+        std::for_each(data.begin(), data.end(), [](int i){std::cout << i << " ";});
+        
+    }
+}
+
+// accumulate
+namespace T0C {
+    
+    template<typename Iterator, typename T>
+    T parallel_accumulate(Iterator first, Iterator last, T init)
+    {
+        const unsigned long length = std::distance(first, last);
+        if (length == 0) {
+            return init;
+        }
+        
+        const unsigned long min_per_thread = 25;
+        const unsigned long max_threads_num = (length + min_per_thread - 1) / min_per_thread;
+        const unsigned long hardware_threads = std::thread::hardware_concurrency();
+        const unsigned long threads_num = std::min(hardware_threads != 0 ? hardware_threads : 2, max_threads_num);
+        const unsigned long block_size = length / threads_num;
+        
+        std::vector<std::thread> threads(threads_num - 1);
+        std::vector<T> results(threads_num);
+        
+        Iterator block_start = first;
+        for (int i = 0; i < threads_num-1; i++) {
+            Iterator block_end = block_start;
+            std::advance(block_end, block_size);
+            auto task = [=](Iterator first, Iterator last, T& result){ result = std::accumulate(first, last, result);};
+            threads[i] = std::thread(task, block_start, block_end, std::ref(results[i]));
+            block_start = block_end;
+        }
+        results[threads_num - 1] = std::accumulate(block_start, last, 0);
+    
+        for (int i = 0; i < threads_num-1; i++) {
+            threads[i].join();
+        }
+        
+        return std::accumulate(results.begin(), results.end(), init);
+    }
+    
+    void run()
+    {
+        std::vector<int> data;
+        for (int i = 1; i <= 100000; i++) {
+            data.push_back(i);
+        }
+        
+        std::cout << "Single threads results: " << std::accumulate(data.begin(), data.end(), 0) << std::endl;
+        
+        int r = parallel_accumulate(data.begin(), data.end(), 0);
+        std::cout << "Multi threads results: " << r << std::endl;
+    }
+    
 }

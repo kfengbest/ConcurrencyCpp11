@@ -21,9 +21,7 @@ int main(int argc, const char * argv[])
     //T02::run();
     //T03::run();
     
-    //T10::run();
-    //T11::run();
-    //T12::run();
+
 
     //T04::run();
     //T05::run();
@@ -34,6 +32,23 @@ int main(int argc, const char * argv[])
     //T09::run();
     
     T0A::run();
+    //T0B::run();
+    //T0C::run();
+    
+    //T10::run();
+    //T11::run();
+    //T12::run();
+    //T13::run();
+    //T14::run();
+    //T15::run();
+    //T17::run();
+    //T18::run();
+    //T19::run();
+    //T1A::run();
+    //T1B::run();
+    //T1C::run();
+    //T1D::run();
+    //T1E::run();
     
     return 0;
 }

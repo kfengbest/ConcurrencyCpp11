@@ -27,4 +27,49 @@ namespace T13 {
     void run();
 }
 
+namespace T14 {
+    void run();
+}
+
+namespace T15 {
+    void run();
+}
+
+namespace T16 {
+    void run();
+}
+
+namespace T17 {
+    void run();
+}
+
+namespace T18 {
+    void run();
+}
+
+namespace T19 {
+    void run();
+}
+
+namespace T1A {
+    void run();
+}
+
+namespace T1B {
+    void run();
+}
+
+namespace T1C {
+    void run();
+}
+
+namespace T1D {
+    void run();
+}
+
+namespace T1E {
+    void run();
+}
+
+
 #endif /* defined(__TestConcurency11__T1__) */

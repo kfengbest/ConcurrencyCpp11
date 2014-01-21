@@ -66,8 +66,8 @@
 		123D408517FA36DF00D4AC13 /* TestConcurency11 */ = {
 			isa = PBXGroup;
 			children = (
-				123D408617FA36DF00D4AC13 /* main.cpp */,
 				123D408817FA36DF00D4AC13 /* TestConcurency11.1 */,
+				123D408617FA36DF00D4AC13 /* main.cpp */,
 				12BF322D17FBD2FD0096C05E /* T0.cpp */,
 				12BF322E17FBD2FD0096C05E /* T0.h */,
 				12BF323017FDB7290096C05E /* T1.cpp */,

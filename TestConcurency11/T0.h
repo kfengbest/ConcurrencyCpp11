@@ -55,4 +55,11 @@ namespace T0A {
     void run();
 }
 
+namespace T0B {
+    void run();
+}
+
+namespace T0C {
+    void run();
+}
 #endif /* defined(__TestConcurency11__T0__) */
