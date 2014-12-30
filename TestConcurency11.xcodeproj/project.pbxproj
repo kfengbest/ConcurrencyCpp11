@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		123D408717FA36DF00D4AC13 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 123D408617FA36DF00D4AC13 /* main.cpp */; };
 		123D408917FA36DF00D4AC13 /* TestConcurency11.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 123D408817FA36DF00D4AC13 /* TestConcurency11.1 */; };
+		1270CAAB1A524E4100A7ABCE /* T3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1270CAA91A524E4100A7ABCE /* T3.cpp */; };
 		12BF322F17FBD2FD0096C05E /* T0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12BF322D17FBD2FD0096C05E /* T0.cpp */; };
 		12BF323217FDB7290096C05E /* T1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12BF323017FDB7290096C05E /* T1.cpp */; };
 /* End PBXBuildFile section */
@@ -30,6 +31,8 @@
 		123D408317FA36DF00D4AC13 /* TestConcurency11 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestConcurency11; sourceTree = BUILT_PRODUCTS_DIR; };
 		123D408617FA36DF00D4AC13 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		123D408817FA36DF00D4AC13 /* TestConcurency11.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = TestConcurency11.1; sourceTree = "<group>"; };
+		1270CAA91A524E4100A7ABCE /* T3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = T3.cpp; sourceTree = "<group>"; };
+		1270CAAA1A524E4100A7ABCE /* T3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T3.h; sourceTree = "<group>"; };
 		12BF322D17FBD2FD0096C05E /* T0.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = T0.cpp; sourceTree = "<group>"; };
 		12BF322E17FBD2FD0096C05E /* T0.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = T0.h; sourceTree = "<group>"; };
 		12BF323017FDB7290096C05E /* T1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = T1.cpp; sourceTree = "<group>"; };
@@ -72,6 +75,8 @@
 				12BF322E17FBD2FD0096C05E /* T0.h */,
 				12BF323017FDB7290096C05E /* T1.cpp */,
 				12BF323117FDB7290096C05E /* T1.h */,
+				1270CAA91A524E4100A7ABCE /* T3.cpp */,
+				1270CAAA1A524E4100A7ABCE /* T3.h */,
 			);
 			path = TestConcurency11;
 			sourceTree = "<group>";
@@ -129,6 +134,7 @@
 			files = (
 				123D408717FA36DF00D4AC13 /* main.cpp in Sources */,
 				12BF322F17FBD2FD0096C05E /* T0.cpp in Sources */,
+				1270CAAB1A524E4100A7ABCE /* T3.cpp in Sources */,
 				12BF323217FDB7290096C05E /* T1.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
