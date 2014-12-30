@@ -57,3 +57,55 @@ namespace T30 {
      
     */
 }
+
+// fork tasks, computing, wait for results.
+// the total time depends on longest one.
+namespace T31 {
+    
+    void run()
+    {
+        unsigned cores = std::thread::hardware_concurrency();
+        std::vector<std::future<int> > futures;
+        
+        for (int i = 0; i < cores; i++){
+            auto sum = [](int from, int to)->int
+            {
+                int r = 0;
+                for (int i = from; i <= to; i++) {
+                    r += i;
+                }
+                std::cout << r << std::endl;
+                return r;
+            };
+            // fork a thread
+            std::future<int> f = std::async(std::launch::async, sum, 0, i);
+
+            // push to waiting list
+            futures.push_back(std::move(f));
+        }
+        
+        // wait for results.
+        int r = 0;
+        for (auto& f : futures){
+            r += f.get();
+        }
+        std::cout << "total: " << r << std::endl;
+    }
+    
+    /*
+     0
+     1
+     3
+     6
+     10
+     15
+     21
+     28
+     total: 84
+    */
+}
+
+
+
+
+

@@ -51,6 +51,7 @@ int main(int argc, const char * argv[])
     //T1E::run();
     
     T30::run();
+    T31::run();
     
     return 0;
 }
