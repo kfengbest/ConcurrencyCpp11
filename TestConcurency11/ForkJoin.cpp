@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Kaven Feng. All rights reserved.
 //
 
-#include "T3.h"
+#include "ForkJoin.h"
 #include <list>
 #include <thread>
 #include <mutex>
@@ -24,6 +24,7 @@
 #include <stack>
 #include <random>
 
+// Fork-Join pattern
 
 int fib(int n)
 {
