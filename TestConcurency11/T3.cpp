@@ -67,6 +67,7 @@ namespace T31 {
         unsigned cores = std::thread::hardware_concurrency();
         std::vector<std::future<int> > futures;
         
+        // fork
         for (int i = 0; i < cores; i++){
             auto sum = [](int from, int to)->int
             {
@@ -105,6 +106,69 @@ namespace T31 {
     */
 }
 
+// fork n threads, peek each thread, once finished, remove it.
+namespace T32 {
+    
+    void run()
+    {
+        unsigned cores = std::thread::hardware_concurrency();
+        std::vector<std::future<int> > futures;
+        auto worker = [](int from, int to)-> int
+        {
+            int r = 0;
+            for (int i = from; i <= to; i++) {
+                r += i;
+            }
+            std::cout << r << std::endl;
+            return r;
+        };
+        
+        // fork n threads
+        for (int i = 0; i < cores; i++) {
+            // fork a thread
+            auto f = std::async(std::launch::async, worker, 0, i);
+            
+            // push to waiting list
+            futures.push_back(std::move(f));
+        }
+        
+        int res = 0;
+        int cur = 0;
+        while (futures.size() > 0) {
+            
+            // iterate the futures one by one.
+            auto& f = futures[cur];
+            
+            // check the executing status
+            std::future_status st = f.wait_for(std::chrono::milliseconds(10));
+            if (st == std::future_status::ready) {
+                res += f.get();
+                
+                // remove the finished task
+                futures.erase(futures.begin() + cur);
+                
+            }
+            
+            // move to next one
+            cur++; if (cur >= futures.size()) { cur = 0;}
+        }
+        
+        std::cout << "total: " << res << std::endl;
+        
+    }
+    
+    /*
+     01
+     
+     3
+     6
+     10
+     15
+     21
+     28
+     total: 84
+    */
+}
 
 
 
