@@ -23,4 +23,8 @@ namespace T32 {
     void run();
 }
 
+namespace T33 {
+    void run();
+}
+
 #endif /* defined(__TestConcurency11__T3__) */
