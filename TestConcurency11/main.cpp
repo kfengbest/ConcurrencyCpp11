@@ -9,7 +9,7 @@
 #include <iostream>
 #include "T0.h"
 #include "T1.h"
-
+#include "T3.h"
 int main(int argc, const char * argv[])
 {
 
@@ -31,7 +31,7 @@ int main(int argc, const char * argv[])
     //T08::run();
     //T09::run();
     
-    T0A::run();
+    //T0A::run();
     //T0B::run();
     //T0C::run();
     
@@ -49,6 +49,8 @@ int main(int argc, const char * argv[])
     //T1C::run();
     //T1D::run();
     //T1E::run();
+    
+    T30::run();
     
     return 0;
 }
